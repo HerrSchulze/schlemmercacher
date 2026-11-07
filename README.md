@@ -1,24 +1,30 @@
 # Schlemmercacher Archiv
 
-Statisch archivierter WordPress-Blog von schlemmercacher.de.
+Statisch archivierter WordPress-Blog von schlemmercacher.de, gehostet auf Cloudflare Pages.
 
 ## Struktur
 
-- `build_site.py` — Extrahiert alle Posts via WordPress-REST-API und generiert statische HTML-Seiten
-- `_site/` — Generierte Ausgabe (wird von GitHub Pages ausgespielt)
-- `.github/workflows/deploy.yml` — GitHub Action für automatisches Deployment
+- `build_site.py` — Extrahiert alle Posts via WordPress-REST-API und generiert statische HTML-Seiten in `_site/`
+- `_site/` — Generierte Ausgabe (wird auf Cloudflare Pages deployed)
+- `wrangler.toml` — Cloudflare Pages Konfiguration
+- `.github/workflows/deploy.yml` — GitHub Action für automatisches Deployment bei Push auf `main`
 
-## Lokales Testen
+## Lokales Deploy
+
+Voraussetzung: [Node.js](https://nodejs.org/) und Wrangler CLI
 
 ```bash
+npm install -g wrangler
+wrangler login
+cd /home/peter/workspace/schlemmercacher
 python3 build_site.py
-cd _site && python3 -m http.server 8000
+wrangler pages deploy _site --project-name schlemmercacher
 ```
 
-## Deployment
+## Automatisches Deploy via GitHub Actions
 
-1. Repository auf GitHub erstellen und Code pushen.
-2. Im Repository unter **Settings → Pages** als Build source "GitHub Actions" wählen.
-3. Bei jedem Push auf `main` wird die Seite neu gebaut und deployed.
+1. Im Cloudflare Dashboard ein API-Token erstellen mit der Berechtigung `Cloudflare Pages:Edit`
+2. Im GitHub-Repo unter **Settings → Secrets and variables → Actions** den Secret `CLOUDFLARE_API_TOKEN` anlegen
+3. Bei jedem Push auf `main` baut die Action die Seite und deployed sie auf Cloudflare Pages
 
-Optional: Für Custom Domain `schlemmercacher.de` eine `CNAME`-Datei im `_site`-Ordner anlegen (wird beim Build nicht überschrieben) und DNS-Eintrag bei Cloudflare setzen.
+Die Seite ist dann unter der von Cloudflare vergebenen URL (oder deiner Custom Domain `schlemmercacher.de`) erreichbar.
